@@ -63,15 +63,22 @@ if [ -z "$(docker ps -a -q -f name=steamlink 2> /dev/null)" ]; then
   echo "###STATUS(102):Creating SteamLink container"
   docker create \
     --privileged \
+    --name steamlink \
     --tty \
+    --network="host" \
+    --device=/dev/input/event3 \
+    --device=/dev/uinput \
+    --device=/dev/hidraw2 \
+    --device-cgroup-rule='c 13:* rmw' \
+    --device-cgroup-rule='c 116:* rmw' \
     --volume /run:/run \
     --volume /dev/input:/dev/input \
+    --volume /dev/uinput:/dev/uinput \
+    --volume /dev/hidraw2:/dev/hidraw2 \
     --volume /dev/usb:/dev/usb \
-    --network="host" \
     --volume "$ADDON_PROFILE_PATH/data:/data" \
-    --name steamlink \
     --entrypoint /bin/bash \
-    $DOCKER_BASE \
+    "$DOCKER_BASE" \
     /data/bin/launch.sh
 fi
 
